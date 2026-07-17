@@ -1,0 +1,19 @@
+services:
+  frontend:
+    build:
+      context: ./frontend
+    ports:
+      - "${WEB_PORT:-8080}:80"
+    depends_on:
+      - api
+    restart: unless-stopped
+
+  api:
+    build:
+      context: ./python-backend
+    environment:
+      ADMIN_EXPORT_TOKEN: ${ADMIN_EXPORT_TOKEN:?Set ADMIN_EXPORT_TOKEN in .env.production}
+      CLIENT_ORIGIN: ${CLIENT_ORIGIN:-http://localhost:8080}
+    volumes:
+      - ./python-backend/data:/app/data
+    restart: unless-stopped
