@@ -338,9 +338,10 @@ app.get(
     const pageWidth = document.page.width;
     const pageHeight = document.page.height;
     const margin = 42;
-    const accent = "#ffc000";
+    const accent = "#0b66c2";
     const dark = "#1f1f1f";
-    const muted = "#666666";
+    const muted = "#676767";
+    const background = "#f7f9fb";
 
     response.setHeader("Content-Type", "application/pdf");
     response.setHeader(
@@ -351,59 +352,72 @@ app.get(
     document.pipe(response);
 
     document
-      .rect(margin, margin, pageWidth - margin * 2, pageHeight - margin * 2)
-      .lineWidth(2)
+      .roundedRect(margin, margin, pageWidth - margin * 2, pageHeight - margin * 2, 20)
+      .lineWidth(1.5)
       .stroke(accent);
 
     document
-      .rect(margin + 8, margin + 8, pageWidth - margin * 2 - 16, pageHeight - margin * 2 - 16)
-      .lineWidth(0.5)
-      .stroke("#d6d6d6");
+      .roundedRect(margin + 12, margin + 12, pageWidth - margin * 2 - 24, pageHeight - margin * 2 - 24, 16)
+      .fill(background)
+      .stroke("#dfe3ea");
+
+    const contentWidth = pageWidth - margin * 2;
+    const headerTop = margin + 30;
+    const logoWidth = 140;
+    const logoHeight = 50;
 
     if (fs.existsSync(logoPath)) {
-      document.image(logoPath, pageWidth / 2 - 95, 68, {
-        fit: [190, 70],
-        align: "center",
+      document.image(logoPath, (pageWidth - logoWidth) / 2, headerTop, {
+        fit: [logoWidth, logoHeight],
       });
     }
 
     document
       .font("Helvetica-Bold")
-      .fontSize(24)
+      .fontSize(20)
       .fillColor(dark)
-      .text("Eka Infra Safety Induction", 0, 145, {
+      .text("Eka Infra Safety Induction", margin, headerTop + 70, {
+        width: contentWidth,
         align: "center",
       });
 
     document
-      .moveDown(0.4)
-      .fontSize(30)
+      .font("Helvetica-Bold")
+      .fontSize(36)
       .fillColor(accent)
-      .text("Certificate of Completion", {
+      .text("Certificate of Completion", margin, headerTop + 106, {
+        width: contentWidth,
         align: "center",
+        lineGap: 4,
       });
 
     document
-      .moveDown(0.8)
       .font("Helvetica")
-      .fontSize(12)
+      .fontSize(11)
       .fillColor(muted)
-      .text("This certifies that the employee named below has completed the safety induction process and assessment.", {
-        align: "center",
-        width: pageWidth - margin * 2,
-      });
+      .text(
+        "This is to certify that the person named below has successfully completed the Eka Infra safety induction program and assessment.",
+        margin,
+        headerTop + 160,
+        {
+          width: contentWidth - 120,
+          align: "center",
+          lineGap: 4,
+        }
+      );
 
     document
-      .moveTo(margin + 42, 245)
-      .lineTo(pageWidth - margin - 42, 245)
+      .moveTo(margin + 60, headerTop + 210)
+      .lineTo(pageWidth - margin - 60, headerTop + 210)
       .lineWidth(1)
       .stroke(accent);
 
     document
       .font("Helvetica-Bold")
-      .fontSize(20)
+      .fontSize(24)
       .fillColor(dark)
-      .text(record.fullName, margin, 270, {
+      .text(record.fullName, margin, headerTop + 226, {
+        width: contentWidth,
         align: "center",
       });
 
@@ -411,66 +425,117 @@ app.get(
       .font("Helvetica")
       .fontSize(11)
       .fillColor(muted)
-      .text(`Employee ID: ${record.employeeId}`, {
+      .text(`Employee ID: ${record.employeeId}`, margin, headerTop + 258, {
+        width: contentWidth,
         align: "center",
       });
 
-    const detailsTop = 340;
-    const labelX = 95;
-    const valueX = 250;
-    const rowGap = 30;
+    const detailsTop = headerTop + 300;
+    const infoBoxX = margin + 70;
+    const infoBoxWidth = pageWidth - margin * 2 - 140;
+    const leftColumnX = infoBoxX + 10;
+    const rightColumnX = infoBoxX + infoBoxWidth / 2 + 10;
+    const rowGap = 34;
     const details = [
-      ["Designation", record.designation],
-      ["Department", record.department],
-      ["Date of Joining", record.dateOfJoining],
-      ["Mobile Number", record.phone],
-      ["Language", record.language],
-      ["Quiz Score", `${record.quizScore}/${record.totalQuestions}`],
-      ["Completion Date", completedDate],
-      ["Reference Number", record.referenceNumber],
+      ["Designation", record.designation, "Department", record.department],
+      ["Date of Joining", record.dateOfJoining, "Mobile Number", record.phone],
+      ["Language", record.language, "Quiz Score", `${record.quizScore}/${record.totalQuestions}`],
+      ["Completion Date", completedDate, "Reference Number", record.referenceNumber],
     ];
 
     document
-      .roundedRect(78, detailsTop - 28, pageWidth - 156, 286, 10)
-      .fillAndStroke("#fbfbfb", "#eeeeee");
+      .roundedRect(infoBoxX, detailsTop - 24, infoBoxWidth, 280, 14)
+      .fill("#ffffff")
+      .stroke("#d8dde6");
 
-    details.forEach(([label, value], index) => {
+    details.forEach(([leftLabel, leftValue, rightLabel, rightValue], index) => {
       const y = detailsTop + index * rowGap;
 
       document
         .font("Helvetica-Bold")
         .fontSize(10)
         .fillColor(muted)
-        .text(label.toUpperCase(), labelX, y, {
-          width: 130,
+        .text(leftLabel.toUpperCase(), leftColumnX, y, {
+          width: infoBoxWidth / 2 - 20,
         });
 
       document
         .font("Helvetica")
         .fontSize(12)
         .fillColor(dark)
-        .text(value, valueX, y - 1, {
-          width: 260,
+        .text(leftValue, leftColumnX, y + 12, {
+          width: infoBoxWidth / 2 - 20,
+        });
+
+      document
+        .font("Helvetica-Bold")
+        .fontSize(10)
+        .fillColor(muted)
+        .text(rightLabel.toUpperCase(), rightColumnX, y, {
+          width: infoBoxWidth / 2 - 20,
+        });
+
+      document
+        .font("Helvetica")
+        .fontSize(12)
+        .fillColor(dark)
+        .text(rightValue, rightColumnX, y + 12, {
+          width: infoBoxWidth / 2 - 20,
         });
     });
 
+    const signatureY = detailsTop + details.length * rowGap + 30;
+    const signatureWidth = 180;
+    const signatureLineY = signatureY + 24;
+
     document
-      .roundedRect(180, 655, pageWidth - 360, 58, 8)
-      .fillAndStroke("#111111", "#111111");
+      .moveTo(margin + 90, signatureLineY)
+      .lineTo(margin + 90 + signatureWidth, signatureLineY)
+      .lineWidth(0.7)
+      .stroke(muted);
+
+    document
+      .moveTo(pageWidth - margin - 90 - signatureWidth, signatureLineY)
+      .lineTo(pageWidth - margin - 90, signatureLineY)
+      .stroke(muted);
+
+    document
+      .font("Helvetica")
+      .fontSize(10)
+      .fillColor(muted)
+      .text("Authorized Signatory", margin + 90, signatureLineY + 6, {
+        width: signatureWidth,
+        align: "center",
+      });
+
+    document
+      .font("Helvetica")
+      .fontSize(10)
+      .fillColor(muted)
+      .text("Date", pageWidth - margin - 90 - signatureWidth, signatureLineY + 6, {
+        width: signatureWidth,
+        align: "center",
+      });
+
+    document
+      .roundedRect(180, pageHeight - 128, pageWidth - 360, 58, 8)
+      .fill("#f3f7fd")
+      .stroke("#cdd6e8");
 
     document
       .font("Helvetica-Bold")
       .fontSize(9)
-      .fillColor("#bdbdbd")
-      .text("REFERENCE NUMBER", 180, 670, {
+      .fillColor("#5f6f8c")
+      .text("REFERENCE NUMBER", 180, pageHeight - 112, {
         width: pageWidth - 360,
         align: "center",
       });
 
     document
-      .fontSize(22)
-      .fillColor(accent)
-      .text(record.referenceNumber, 180, 685, {
+      .font("Helvetica-Bold")
+      .fontSize(20)
+      .fillColor(dark)
+      .text(record.referenceNumber, 180, pageHeight - 96, {
         width: pageWidth - 360,
         align: "center",
       });
@@ -479,16 +544,21 @@ app.get(
       .font("Helvetica")
       .fontSize(9)
       .fillColor(muted)
-      .text("Generated by Eka Infra Induction Portal", margin, pageHeight - 82, {
+      .text("Generated by Eka Infra Induction Portal", margin, pageHeight - 44, {
         align: "center",
       });
 
     document
       .fontSize(8)
-      .fillColor("#999999")
-      .text("This certificate is valid only with the reference number shown above.", margin, pageHeight - 66, {
-      align: "center",
-      });
+      .fillColor("#8b95a2")
+      .text(
+        "This certificate is valid only with the reference number shown above.",
+        margin,
+        pageHeight - 28,
+        {
+          align: "center",
+        }
+      );
 
     document.end();
   }

@@ -1,6 +1,12 @@
 *.log
+__pycache__/
+*.pyc
 certificate-test.pdf
 backend/data/
+python-backend/data/
+python-backend/certificates/
+python-backend/venv/
+python-backend/.venv/
 
 node_modules/
 .next/

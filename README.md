@@ -2,9 +2,11 @@
 
 Safety induction portal for Eka Infra employees.
 
-The project has two apps:
+The QNAP-ready version has two main parts:
 
-- `frontend`: Next.js induction flow.
-- `backend`: Express API for completion records and PDF certificates.
+- `frontend`: Next.js induction flow, exported as static files for NAS hosting.
+- `python-backend`: Flask API for completion records, SQLite storage, and PDF certificates.
 
-See `docs/setup.md` for local setup.
+The old Node backend is still in `backend` as a fallback/reference.
+
+See `docs/qnap-deployment.md` for local setup and QNAP deployment.
