@@ -1,0 +1,78 @@
+@import "tailwindcss";
+
+html,
+body{
+  margin:0;
+  padding:0;
+  min-height:100%;
+  overflow-x:hidden;
+  color:white;
+  font-family:Arial, Helvetica, sans-serif;
+}
+
+body{
+
+  background-image:
+  linear-gradient(
+    rgba(0,0,0,0.80),
+    rgba(0,0,0,0.80)
+  ),
+  url("/background.jpg");
+
+  background-size:cover;
+
+  background-position:center;
+
+  background-repeat:no-repeat;
+
+  background-attachment:fixed;
+
+}
+
+*{
+  box-sizing:border-box;
+}
+
+.glass-card{
+
+  background:rgba(15,15,15,0.85);
+
+  backdrop-filter:blur(12px);
+
+  -webkit-backdrop-filter:blur(12px);
+
+  border:1px solid rgba(255,192,0,0.15);
+
+  box-shadow:
+  0 8px 40px rgba(0,0,0,0.5);
+
+}
+
+input,
+select{
+
+  transition:0.3s ease;
+
+}
+
+input:focus,
+select:focus{
+
+  border:2px solid #ffc000;
+
+  box-shadow:
+  0 0 12px rgba(255,192,0,0.4);
+
+}
+
+button{
+
+  transition:0.3s ease;
+
+}
+
+button:hover{
+
+  transform:translateY(-2px);
+
+}
