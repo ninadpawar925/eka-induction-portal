@@ -11,6 +11,8 @@ services:
   api:
     build:
       context: ./python-backend
+    ports:
+      - "${API_PORT:-5000}:5000"
     environment:
       ADMIN_EXPORT_TOKEN: ${ADMIN_EXPORT_TOKEN:?Set ADMIN_EXPORT_TOKEN in .env.production}
       CLIENT_ORIGIN: ${CLIENT_ORIGIN:-http://localhost:8080}

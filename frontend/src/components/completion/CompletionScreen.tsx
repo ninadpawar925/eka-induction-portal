@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import {
   saveInduction,
@@ -32,6 +32,8 @@ export default function CompletionScreen({
     setSaveError
   ] = useState("");
 
+  const savePromiseRef = useRef<Promise<SaveInductionResponse> | null>(null);
+
   useEffect(() => {
 
     if (!employeeData) {
@@ -44,40 +46,30 @@ export default function CompletionScreen({
 
     let isCurrent = true;
 
-    async function saveCompletion() {
+    if (!savePromiseRef.current) {
+      setSaveError("");
+      savePromiseRef.current = saveInduction({
+        language,
+        employee,
+        quizScore: score,
+        totalQuestions: TOTAL_QUIZ_QUESTIONS,
+      });
+    }
 
-      try {
-
-        setSaveError("");
-
-        const saved = await saveInduction({
-          language,
-          employee,
-          quizScore: score,
-          totalQuestions: TOTAL_QUIZ_QUESTIONS,
-        });
-
+    savePromiseRef.current
+      .then((saved) => {
         if (isCurrent) {
-
           setSavedInduction(saved);
-
         }
-
-      } catch {
-
+      })
+      .catch(() => {
+        savePromiseRef.current = null;
         if (isCurrent) {
-
           setSaveError(
             "Completion saved on screen, but the backend is not reachable yet."
           );
-
         }
-
-      }
-
-    }
-
-    saveCompletion();
+      });
 
     return () => {
 

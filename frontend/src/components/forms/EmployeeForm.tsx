@@ -5,11 +5,13 @@ import { useForm } from "react-hook-form";
 
 import type { EmployeeData } from "../../lib/inductionApi";
 
-type FormData = EmployeeData;
+type FormData = EmployeeData & {
+  hasConsent: boolean;
+};
 
 type Props = {
   language: string;
-  onContinue: (data: FormData) => void;
+  onContinue: (data: EmployeeData) => void;
 };
 
 export default function EmployeeForm({
@@ -20,14 +22,24 @@ export default function EmployeeForm({
   const {
     register,
     handleSubmit,
-    formState: { errors },
-  } = useForm<FormData>();
+    formState: { errors, isValid },
+  } = useForm<FormData>({ mode: "onChange" });
+
+  const consentField = register("hasConsent", { required: true });
 
   const onSubmit = (data: FormData) => {
+    const employee: EmployeeData = {
+      fullName: data.fullName,
+      employeeId: data.employeeId,
+      designation: data.designation,
+      department: data.department,
+      dateOfJoining: data.dateOfJoining,
+      phone: data.phone,
+    };
 
-    console.log("Employee Details:", data);
+    console.log("Employee Details:", employee);
 
-    onContinue(data);
+    onContinue(employee);
 
   };
 
@@ -221,14 +233,30 @@ export default function EmployeeForm({
 
         </div>
 
+        <label className="flex items-start gap-3 rounded-xl border border-white/30 bg-black/20 p-4 text-sm leading-6 text-white">
+          <input
+            type="checkbox"
+            {...consentField}
+            className="mt-1 h-5 w-5 shrink-0 accent-[#ffc000]"
+          />
+          <span>
+            I consent to Eka Infra collecting and processing my personal
+            information for induction and official company purposes.
+          </span>
+        </label>
+
         <button
           type="submit"
+          disabled={!isValid}
           className="
-          w-full
-          h-14
-          rounded-xl
-          bg-[#ffc000]
-          text-black
+           w-full
+           h-14
+           rounded-xl
+           disabled:bg-gray-600
+           disabled:text-gray-300
+           disabled:cursor-not-allowed
+           bg-[#ffc000]
+           text-black
           text-lg
           font-bold
           "

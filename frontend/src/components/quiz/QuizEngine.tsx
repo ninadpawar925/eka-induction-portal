@@ -56,6 +56,8 @@ export default function QuizEngine({
 
   const [selected, setSelected] = useState("");
 
+  const [hasAnswered, setHasAnswered] = useState(false);
+
   const question = questions[currentQuestion];
 
   const handleNext = () => {
@@ -72,6 +74,8 @@ export default function QuizEngine({
       setCurrentQuestion(currentQuestion + 1);
 
       setSelected("");
+
+      setHasAnswered(false);
 
     } else {
 
@@ -109,12 +113,22 @@ export default function QuizEngine({
 
             <button
               key={index}
-              onClick={() => setSelected(option)}
+              onClick={() => {
+                if (!hasAnswered) {
+                  setSelected(option);
+                  setHasAnswered(true);
+                }
+              }}
+              disabled={hasAnswered}
               className={`w-full text-left p-5 rounded-2xl border transition-all ${
-                selected === option
+                hasAnswered && option === question.answer
+                  ? "bg-green-600 text-white border-green-400"
+                  : hasAnswered && selected === option
+                    ? "bg-red-600 text-white border-red-400"
+                    : selected === option
                   ? "bg-[#ffc000] text-black border-[#ffc000]"
                   : "bg-[#1a1a1a] border-gray-700 text-white"
-              }`}
+              } ${hasAnswered ? "cursor-default" : "hover:border-[#ffc000]"}`}
             >
 
               {option}
@@ -125,6 +139,12 @@ export default function QuizEngine({
         }
 
       </div>
+
+      {hasAnswered && selected !== question.answer && (
+        <p className="mt-5 text-center font-semibold text-green-300">
+          Correct answer: {question.answer}
+        </p>
+      )}
 
       <button
         onClick={handleNext}
